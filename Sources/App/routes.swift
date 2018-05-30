@@ -3,26 +3,19 @@ import Leaf
 
 /// Register your application's routes here.
 public func routes(_ router: Router) throws {
-    
-    router.get("name") { req in
-        return "Passaction"
+    router.get("users") { req -> Future<View> in
+        return User.query(on: req).all().flatMap({ users in
+            let data = ["userlist": users]
+            return try req.view().render("userview", data)
+        })
     }
     
-    router.get("age") { req in
-        return 23
-    }
-    
-    router.get("json") { req in
-        return Person(name: "Passaction", age: 23)
-    }
-    
-    router.get("view") { req -> Future<View> in
-        return try req.view().render("welcome")
-    }
-    
-    router.get("bonus") { (req) -> Future<View> in
-        let passaction = Person(name: "Passaction", age: 23)
-        return try req.view().render("whoami", passaction)
+    router.post("users") { req -> Future<Response> in
+        return try req.content.decode(User.self).flatMap({ user in
+            return user.save(on: req).map({ _ in
+                return req.redirect(to: "users")
+            })
+        })
     }
 }
 
