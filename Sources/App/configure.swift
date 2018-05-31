@@ -1,6 +1,5 @@
-import FluentSQLite
+import FluentMySQL
 import Vapor
-import Leaf
 
 /// Called before your application initializes.
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
@@ -13,19 +12,18 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     let serverConfig = NIOServerConfig.default(port:9090)
     services.register(serverConfig)
     
-    let leafProvider = LeafProvider()
-    try services.register(leafProvider)
+    let databseProvider = FluentMySQLProvider()
+    try services.register(databseProvider)
     
-    let sqliteProvider = FluentSQLiteProvider()
-    try services.register(sqliteProvider)
-    
-    config.prefer(LeafRenderer.self, for: ViewRenderer.self)
-    
-    var databases = DatabasesConfig()
-    try databases.add(database: SQLiteDatabase(storage: .memory), as: .sqlite)
-    services.register(databases)
+    let mysqlConfig = MySQLDatabaseConfig(
+        hostname: "127.0.0.1",
+        port: 3306,
+        username: "swift",
+        password: "passaction1234",
+        database: "swift_test")
+    services.register(mysqlConfig)
     
     var migrations = MigrationConfig()
-    migrations.add(model: User.self, database: .sqlite)
+    migrations.add(model: User.self, database: .mysql)
     services.register(migrations)
 }

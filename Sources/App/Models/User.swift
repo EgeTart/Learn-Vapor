@@ -1,7 +1,7 @@
 import Vapor
-import FluentSQLite
+import FluentMySQL
 
-final class User: SQLiteModel {
+final class User: MySQLModel {
     var id: Int?
     var name: String
     
@@ -14,3 +14,5 @@ final class User: SQLiteModel {
 extension User: Content {}
 
 extension User: Migration {}
+
+extension User: Parameter {}
